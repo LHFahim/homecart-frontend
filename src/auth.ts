@@ -2,6 +2,32 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 
+function getStringField(
+  source: Record<string, unknown> | null,
+  keys: string[],
+): string | null {
+  if (!source) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const value = source[key];
+
+    if (typeof value === "string" && value.length > 0) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function toApiUrl(baseUrl: string, path: string): string {
+  return new URL(
+    path.replace(/^\//, ""),
+    baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`,
+  ).toString();
+}
+
 const credentialsSchema = z.object({
   email: z.string().email().trim().toLowerCase(),
   password: z.string().min(8).max(72),
@@ -40,10 +66,7 @@ export const {
           return null;
         }
 
-        const loginApiUrl = new URL(
-          "/auth/login/email",
-          apiBaseUrl.endsWith("/") ? apiBaseUrl : `${apiBaseUrl}/`,
-        ).toString();
+        const loginApiUrl = toApiUrl(apiBaseUrl, "auth/login/email");
 
         try {
           const response = await fetch(loginApiUrl, {
@@ -66,10 +89,55 @@ export const {
             payload && typeof payload === "object"
               ? (payload as Record<string, unknown>)
               : null;
+          const dataContainer =
+            asRecord && asRecord.data && typeof asRecord.data === "object"
+              ? (asRecord.data as Record<string, unknown>)
+              : null;
+          const tokenContainer =
+            dataContainer &&
+            dataContainer.token &&
+            typeof dataContainer.token === "object"
+              ? (dataContainer.token as Record<string, unknown>)
+              : null;
+          const tokensContainer =
+            dataContainer &&
+            dataContainer.tokens &&
+            typeof dataContainer.tokens === "object"
+              ? (dataContainer.tokens as Record<string, unknown>)
+              : null;
           const userContainer =
             asRecord && asRecord.user && typeof asRecord.user === "object"
               ? (asRecord.user as Record<string, unknown>)
-              : asRecord;
+              : dataContainer &&
+                  dataContainer.user &&
+                  typeof dataContainer.user === "object"
+                ? (dataContainer.user as Record<string, unknown>)
+                : asRecord;
+
+          const accessTokenFromApi =
+            getStringField(asRecord, ["accessToken", "access_token", "jwt"]) ??
+            getStringField(dataContainer, [
+              "accessToken",
+              "access_token",
+              "jwt",
+            ]) ??
+            getStringField(tokensContainer, [
+              "accessToken",
+              "access_token",
+              "jwt",
+              "access",
+            ]) ??
+            getStringField(tokenContainer, [
+              "accessToken",
+              "access_token",
+              "jwt",
+            ]) ??
+            getStringField(asRecord, ["token"]) ??
+            getStringField(dataContainer, ["token"]);
+
+          if (!accessTokenFromApi) {
+            return null;
+          }
 
           const emailFromApi =
             typeof userContainer?.email === "string"
@@ -80,14 +148,14 @@ export const {
               ? userContainer.name
               : "HomeCart User";
           const idFromApi =
-            typeof userContainer?.id === "string"
-              ? userContainer.id
-              : emailFromApi;
+            getStringField(userContainer, ["id", "userId", "_id", "sub"]) ??
+            emailFromApi;
 
           return {
             id: idFromApi,
             email: emailFromApi,
             name: nameFromApi,
+            accessToken: accessTokenFromApi,
           };
         } catch {
           return null;
@@ -95,4 +163,30 @@ export const {
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        if (typeof user.id === "string") {
+          token.userId = user.id;
+        }
+
+        if (typeof user.accessToken === "string") {
+          token.accessToken = user.accessToken;
+        }
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user && typeof token.userId === "string") {
+        session.user.id = token.userId;
+      }
+
+      if (typeof token.accessToken === "string") {
+        session.accessToken = token.accessToken;
+      }
+
+      return session;
+    },
+  },
 });

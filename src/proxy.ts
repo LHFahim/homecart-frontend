@@ -8,7 +8,7 @@ export const proxy = auth((request: NextRequest & { auth: unknown }) => {
 
   if (isLoginRoute) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/households", request.url));
     }
 
     return NextResponse.next();
