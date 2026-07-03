@@ -1,5 +1,5 @@
 import { CartItemsPanel } from "@/components/cart-items-panel";
-import { getCartItems } from "@/lib/cart-items-api";
+import { getCartItems, type CartItem } from "@/lib/cart-items-api";
 import { getCartById } from "@/lib/carts-api";
 import { getHouseholdById } from "@/lib/households-api";
 
@@ -16,7 +16,7 @@ export default async function CartItemsPage({ params }: CartItemsPageProps) {
   let householdName = householdId;
   let cartName = cartId;
   let initialError: string | null = null;
-  let initialItems = [];
+  let initialItems: CartItem[] = [];
 
   try {
     const cart = await getCartById(cartId);
