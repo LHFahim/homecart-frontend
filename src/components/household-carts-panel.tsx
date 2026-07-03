@@ -1,6 +1,6 @@
 "use client";
 
-import { ListChecks, ShoppingBasket, UserRound } from "lucide-react";
+import { ListChecks, ShoppingBasket } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -30,20 +30,6 @@ function formatHouseholdStatus(household: Household): string {
   }
 
   return "Active";
-}
-
-function formatHouseholdCreatedBy(household: Household): string {
-  const createdBy = household.createdBy;
-
-  if (!createdBy) {
-    return "Unknown";
-  }
-
-  if (typeof createdBy === "string") {
-    return createdBy;
-  }
-
-  return createdBy.name ?? createdBy.email ?? createdBy.id;
 }
 
 function formatCartStatus(cart: Cart): string {
@@ -275,11 +261,6 @@ export function HouseholdCartsPanel({
                     </span>
                   </div>
 
-                  <p className="mt-2 inline-flex items-center gap-2 text-sm text-[#655977]">
-                    <UserRound className="size-4 text-[#57a3a3]" />
-                    Created by: {formatHouseholdCreatedBy(household)}
-                  </p>
-
                   <Button
                     type="button"
                     onClick={() => void handleSelectHousehold(household.id)}
@@ -397,9 +378,6 @@ export function HouseholdCartsPanel({
                             {status}
                           </span>
                         </div>
-                        <p className="mt-1 text-sm text-[#655977]">
-                          Created by: {cart.createdBy || "Unknown"}
-                        </p>
                         <p className="mt-1 text-xs text-[#7a6d89]">
                           Active: {cart.isActive ? "Yes" : "No"} · Deleted:{" "}
                           {cart.isDeleted ? "Yes" : "No"}
