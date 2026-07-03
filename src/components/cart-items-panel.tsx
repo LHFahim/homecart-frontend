@@ -38,12 +38,11 @@ export function CartItemsPanel({
   const [itemPending, setItemPending] = useState(false);
   const [itemSuccess, setItemSuccess] = useState<string | null>(null);
   const [itemError, setItemError] = useState<string | null>(null);
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingItemName, setEditingItemName] = useState("");
   const [editingItemQuantity, setEditingItemQuantity] = useState("1");
-  const [editingItemUnit, setEditingItemUnit] = useState("");
-  const [editingItemCategory, setEditingItemCategory] = useState("");
   const [editingItemNote, setEditingItemNote] = useState("");
   const [editingItemEstimatedPrice, setEditingItemEstimatedPrice] =
     useState("");
@@ -59,8 +58,6 @@ export function CartItemsPanel({
 
   const [itemName, setItemName] = useState("");
   const [itemQuantity, setItemQuantity] = useState("1");
-  const [itemUnit, setItemUnit] = useState("");
-  const [itemCategory, setItemCategory] = useState("");
   const [itemNote, setItemNote] = useState("");
   const [itemEstimatedPrice, setItemEstimatedPrice] = useState("");
   const [itemPriority, setItemPriority] = useState<CartItemPriority>("NORMAL");
@@ -88,8 +85,6 @@ export function CartItemsPanel({
     setEditingItemId(item.id);
     setEditingItemName(item.name);
     setEditingItemQuantity(String(item.quantity));
-    setEditingItemUnit(item.unit ?? "");
-    setEditingItemCategory(item.category ?? "");
     setEditingItemNote(item.note ?? "");
     setEditingItemEstimatedPrice(
       typeof item.estimatedPrice === "number"
@@ -106,8 +101,6 @@ export function CartItemsPanel({
     setEditingItemId(null);
     setEditingItemName("");
     setEditingItemQuantity("1");
-    setEditingItemUnit("");
-    setEditingItemCategory("");
     setEditingItemNote("");
     setEditingItemEstimatedPrice("");
     setEditingItemActualPrice("");
@@ -144,9 +137,6 @@ export function CartItemsPanel({
       cartId,
       name: itemName,
       quantity: quantityNumber,
-      unit: itemUnit.trim().length > 0 ? itemUnit.trim() : undefined,
-      category:
-        itemCategory.trim().length > 0 ? itemCategory.trim() : undefined,
       note: itemNote.trim().length > 0 ? itemNote.trim() : undefined,
       estimatedPrice: estimatedPriceNumber,
       priority: itemPriority,
@@ -160,12 +150,11 @@ export function CartItemsPanel({
 
     setItemName("");
     setItemQuantity("1");
-    setItemUnit("");
-    setItemCategory("");
     setItemNote("");
     setItemEstimatedPrice("");
     setItemPriority("NORMAL");
     setItemSuccess(result.success ?? "Item added successfully.");
+    setIsAddItemModalOpen(false);
     await loadCartItems();
     setItemPending(false);
   }
@@ -211,12 +200,6 @@ export function CartItemsPanel({
       itemId,
       name: editingItemName,
       quantity: quantityNumber,
-      unit:
-        editingItemUnit.trim().length > 0 ? editingItemUnit.trim() : undefined,
-      category:
-        editingItemCategory.trim().length > 0
-          ? editingItemCategory.trim()
-          : undefined,
       note:
         editingItemNote.trim().length > 0 ? editingItemNote.trim() : undefined,
       estimatedPrice: estimatedPriceNumber,
@@ -294,141 +277,32 @@ export function CartItemsPanel({
         </Button>
       </div>
 
-      <form
-        className="mt-5 space-y-3 rounded-3xl border border-[#dce8ef] bg-white/80 p-4"
-        onSubmit={handleCreateItem}
-      >
-        <h3 className="font-heading text-xl text-[#2f3550]">Add Item</h3>
-
-        <div className="space-y-2">
-          <Label htmlFor="item-name" className="text-[#4b4161]">
-            Item Name
-          </Label>
-          <Input
-            id="item-name"
-            value={itemName}
-            onChange={(event) => setItemName(event.target.value)}
-            placeholder="e.g. Milk"
-            required
-            className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
-          />
+      <div className="mt-5 rounded-3xl border border-[#dce8ef] bg-white/80 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-heading text-xl text-[#2f3550]">Items</h3>
+          <Button
+            type="button"
+            onClick={() => {
+              setItemError(null);
+              setIsAddItemModalOpen(true);
+            }}
+            className="h-10 rounded-2xl border-0 bg-[linear-gradient(120deg,#ffd1e2,#ffc6b8)] px-5 font-semibold text-[#5f2f4f] shadow-[0_10px_22px_rgba(214,130,173,0.24)]"
+          >
+            Add Item
+          </Button>
         </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2">
-            <Label htmlFor="item-quantity" className="text-[#4b4161]">
-              Quantity
-            </Label>
-            <Input
-              id="item-quantity"
-              type="number"
-              min="1"
-              step="1"
-              value={itemQuantity}
-              onChange={(event) => setItemQuantity(event.target.value)}
-              className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="item-unit" className="text-[#4b4161]">
-              Unit
-            </Label>
-            <Input
-              id="item-unit"
-              value={itemUnit}
-              onChange={(event) => setItemUnit(event.target.value)}
-              placeholder="e.g. pcs"
-              className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="item-category" className="text-[#4b4161]">
-              Category
-            </Label>
-            <Input
-              id="item-category"
-              value={itemCategory}
-              onChange={(event) => setItemCategory(event.target.value)}
-              placeholder="e.g. Dairy"
-              className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="item-estimated-price" className="text-[#4b4161]">
-              Estimated Price
-            </Label>
-            <Input
-              id="item-estimated-price"
-              type="number"
-              min="0"
-              step="0.01"
-              value={itemEstimatedPrice}
-              onChange={(event) => setItemEstimatedPrice(event.target.value)}
-              placeholder="e.g. 4.99"
-              className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-[1fr_220px]">
-          <div className="space-y-2">
-            <Label htmlFor="item-note" className="text-[#4b4161]">
-              Note
-            </Label>
-            <Input
-              id="item-note"
-              value={itemNote}
-              onChange={(event) => setItemNote(event.target.value)}
-              placeholder="Optional note"
-              className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="item-priority" className="text-[#4b4161]">
-              Priority
-            </Label>
-            <select
-              id="item-priority"
-              value={itemPriority}
-              onChange={(event) =>
-                setItemPriority(event.target.value as CartItemPriority)
-              }
-              className="h-11 w-full rounded-2xl border border-[#e8cfe5] bg-white px-4 text-sm text-[#3d3550]"
-            >
-              <option value="LOW">LOW</option>
-              <option value="NORMAL">NORMAL</option>
-              <option value="HIGH">HIGH</option>
-            </select>
-          </div>
-        </div>
-
-        {itemError && (
-          <p className="rounded-2xl border border-[#efb8c8] bg-[#fff2f7] px-3 py-2 text-sm text-[#953f63]">
-            {itemError}
-          </p>
-        )}
 
         {itemSuccess && (
-          <p className="rounded-2xl border border-[#bde0d8] bg-[#edfdf9] px-3 py-2 text-sm text-[#2a6c67]">
+          <p className="mt-3 rounded-2xl border border-[#bde0d8] bg-[#edfdf9] px-3 py-2 text-sm text-[#2a6c67]">
             {itemSuccess}
           </p>
         )}
 
-        <Button
-          type="submit"
-          disabled={itemPending}
-          className="h-10 rounded-2xl border-0 bg-[linear-gradient(120deg,#ffd1e2,#ffc6b8)] px-5 font-semibold text-[#5f2f4f] shadow-[0_10px_22px_rgba(214,130,173,0.24)]"
-        >
-          {itemPending ? "Adding..." : "Add Item"}
-        </Button>
-      </form>
-
-      <div className="mt-5 rounded-3xl border border-[#dce8ef] bg-white/80 p-4">
-        <h3 className="font-heading text-xl text-[#2f3550]">Items</h3>
+        {!isAddItemModalOpen && itemError && (
+          <p className="mt-3 rounded-2xl border border-[#efb8c8] bg-[#fff2f7] p-3 text-sm text-[#953f63]">
+            {itemError}
+          </p>
+        )}
 
         {cartItemsLoading && (
           <p className="mt-3 text-sm text-[#5f667f]">Loading items...</p>
@@ -494,42 +368,6 @@ export function CartItemsPanel({
                             value={editingItemQuantity}
                             onChange={(event) =>
                               setEditingItemQuantity(event.target.value)
-                            }
-                            className="h-10 rounded-2xl border-[#e8cfe5] bg-white px-3 text-[#3d3550]"
-                            disabled={isUpdatingItem || isDeletingItem}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor={`item-edit-unit-${item.id}`}
-                            className="text-[#4b4161]"
-                          >
-                            Unit
-                          </Label>
-                          <Input
-                            id={`item-edit-unit-${item.id}`}
-                            value={editingItemUnit}
-                            onChange={(event) =>
-                              setEditingItemUnit(event.target.value)
-                            }
-                            className="h-10 rounded-2xl border-[#e8cfe5] bg-white px-3 text-[#3d3550]"
-                            disabled={isUpdatingItem || isDeletingItem}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label
-                            htmlFor={`item-edit-category-${item.id}`}
-                            className="text-[#4b4161]"
-                          >
-                            Category
-                          </Label>
-                          <Input
-                            id={`item-edit-category-${item.id}`}
-                            value={editingItemCategory}
-                            onChange={(event) =>
-                              setEditingItemCategory(event.target.value)
                             }
                             className="h-10 rounded-2xl border-[#e8cfe5] bg-white px-3 text-[#3d3550]"
                             disabled={isUpdatingItem || isDeletingItem}
@@ -652,13 +490,7 @@ export function CartItemsPanel({
                       </p>
                       <p className="mt-1 text-sm text-[#655977]">
                         Quantity: {item.quantity}
-                        {item.unit ? ` ${item.unit}` : ""}
                       </p>
-                      {item.category && (
-                        <p className="mt-1 text-sm text-[#655977]">
-                          Category: {item.category}
-                        </p>
-                      )}
                       <p className="mt-1 text-sm text-[#655977]">
                         Priority: {item.priority}
                       </p>
@@ -711,6 +543,136 @@ export function CartItemsPanel({
           </ul>
         )}
       </div>
+
+      {isAddItemModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2f2a42]/30 p-4">
+          <div className="w-full max-w-3xl rounded-3xl border border-[#dce8ef] bg-white p-5 shadow-[0_24px_50px_rgba(70,65,94,0.25)]">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-heading text-2xl text-[#2f3550]">Add Item</h3>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddItemModalOpen(false)}
+                className="h-9 rounded-2xl border-[#dce7ef] bg-white px-4 text-xs font-semibold text-[#39617a]"
+              >
+                Close
+              </Button>
+            </div>
+
+            <form className="mt-4 space-y-3" onSubmit={handleCreateItem}>
+              <div className="space-y-2">
+                <Label htmlFor="item-name" className="text-[#4b4161]">
+                  Item Name
+                </Label>
+                <Input
+                  id="item-name"
+                  value={itemName}
+                  onChange={(event) => setItemName(event.target.value)}
+                  placeholder="e.g. Milk"
+                  required
+                  className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
+                />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="item-quantity" className="text-[#4b4161]">
+                    Quantity
+                  </Label>
+                  <Input
+                    id="item-quantity"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={itemQuantity}
+                    onChange={(event) => setItemQuantity(event.target.value)}
+                    className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="item-estimated-price"
+                    className="text-[#4b4161]"
+                  >
+                    Estimated Price
+                  </Label>
+                  <Input
+                    id="item-estimated-price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={itemEstimatedPrice}
+                    onChange={(event) =>
+                      setItemEstimatedPrice(event.target.value)
+                    }
+                    placeholder="e.g. 4.99"
+                    className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-[1fr_220px]">
+                <div className="space-y-2">
+                  <Label htmlFor="item-note" className="text-[#4b4161]">
+                    Note
+                  </Label>
+                  <Input
+                    id="item-note"
+                    value={itemNote}
+                    onChange={(event) => setItemNote(event.target.value)}
+                    placeholder="Optional note"
+                    className="h-11 rounded-2xl border-[#e8cfe5] bg-white px-4 text-[#3d3550]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="item-priority" className="text-[#4b4161]">
+                    Priority
+                  </Label>
+                  <select
+                    id="item-priority"
+                    value={itemPriority}
+                    onChange={(event) =>
+                      setItemPriority(event.target.value as CartItemPriority)
+                    }
+                    className="h-11 w-full rounded-2xl border border-[#e8cfe5] bg-white px-4 text-sm text-[#3d3550]"
+                  >
+                    <option value="LOW">LOW</option>
+                    <option value="NORMAL">NORMAL</option>
+                    <option value="HIGH">HIGH</option>
+                  </select>
+                </div>
+              </div>
+
+              {itemError && (
+                <p className="rounded-2xl border border-[#efb8c8] bg-[#fff2f7] px-3 py-2 text-sm text-[#953f63]">
+                  {itemError}
+                </p>
+              )}
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="submit"
+                  disabled={itemPending}
+                  className="h-10 rounded-2xl border-0 bg-[linear-gradient(120deg,#ffd1e2,#ffc6b8)] px-5 font-semibold text-[#5f2f4f] shadow-[0_10px_22px_rgba(214,130,173,0.24)]"
+                >
+                  {itemPending ? "Adding..." : "Add Item"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddItemModalOpen(false)}
+                  disabled={itemPending}
+                  className="h-10 rounded-2xl border-[#dce7ef] bg-white px-5 text-xs font-semibold text-[#39617a]"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
