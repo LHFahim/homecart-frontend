@@ -545,8 +545,8 @@ export function CartItemsPanel({
       </div>
 
       {isAddItemModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2f2a42]/30 p-4">
-          <div className="w-full max-w-3xl rounded-3xl border border-[#dce8ef] bg-white p-5 shadow-[0_24px_50px_rgba(70,65,94,0.25)]">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#2f2a42]/30 p-4 sm:items-center">
+          <div className="my-3 w-full max-w-3xl rounded-3xl border border-[#dce8ef] bg-white p-5 shadow-[0_24px_50px_rgba(70,65,94,0.25)] sm:my-0 max-h-[calc(100dvh-2rem)] overflow-y-auto">
             <div className="flex items-center justify-between gap-3">
               <h3 className="font-heading text-2xl text-[#2f3550]">Add Item</h3>
               <Button
