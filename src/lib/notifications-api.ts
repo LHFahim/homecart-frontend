@@ -290,7 +290,10 @@ export async function sendTestNotification(
 
   const response = await authedFetch<unknown>("/notifications/test", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      title: payload.title,
+      body: payload.body,
+    }),
   });
 
   return normalizeNotificationTestCounts(response);
