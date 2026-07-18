@@ -1,5 +1,6 @@
 import { HouseholdCartsPanel } from "@/components/household-carts-panel";
 import { HouseholdCreateForm } from "@/components/household-create-form";
+import { NotificationSettingsPanel } from "@/components/notification-settings-panel";
 import { getCarts, type Cart } from "@/lib/carts-api";
 import { getHouseholds, type Household } from "@/lib/households-api";
 import { Home } from "lucide-react";
@@ -97,8 +98,22 @@ export default async function HouseholdsPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-        <div className="lg:sticky lg:top-6 lg:self-start">
+        <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
           <HouseholdCreateForm />
+
+          <section className="space-y-3">
+            <div>
+              <h2 className="font-heading text-2xl text-[#2f3550]">
+                Notification Settings
+              </h2>
+              <p className="mt-1 text-sm text-[#5f667f]">
+                Enable browser alerts so HomeCart can notify you about shopping
+                activity and updates.
+              </p>
+            </div>
+
+            <NotificationSettingsPanel />
+          </section>
         </div>
 
         <HouseholdCartsPanel
